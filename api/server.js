@@ -5,8 +5,11 @@ var application_root = __dirname,
     mongoose = require( 'mongoose' ), //MongoDB integration
     passport = require( 'passport' ), //Authentication Library
     LocalStrategy = require( 'passport-local' ).Strategy,
+    cors = require('cors'),
+    config = require('./config.json'),  //The configuration file
     router = require( './router' ),
-    UserModel = require('./models/UserModel');
+    UserModel = require('./models/UserModel'),
+    BookModel = require('./models/BookModel');
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -32,13 +35,16 @@ passport.use(new LocalStrategy(function(username, password, done) {
     UserModel.findOne({ username: username }, function(err, user) {
         if (err) { return done(err); }
         if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
-        if(user.password == password) {
-            console.log("yes");
-            return done(null, user);
-        } else {
-            console.log("no");
-            return done(null, false, { message: 'Invalid password' });
-        }
+        user.comparePassword(password, function(err, isMatch) {
+            if (err) return done(err);
+            if(isMatch) {
+                console.log("yes");
+                return done(null, user);
+            } else {
+                console.log("no");
+                return done(null, false, { message: 'Invalid password' });
+            }
+        });
     });
 }));
 
@@ -57,11 +63,14 @@ app.configure( function() {
     app.use( express.methodOverride() );
 
     //checks the session using the cookies and populates req.session
-    app.use(express.session({ secret: 'keyboard cat' }));
+    app.use(express.session({ secret: 'keyboard catterpillar' }));
     // Initialize Passport!  Also use passport.session() middleware, to support
     // persistent login sessions (recommended).
     app.use(passport.initialize());
     app.use(passport.session());
+
+    //TODO: Make stricter control over CORS origins https://www.npmjs.org/package/cors
+    app.use(cors());
 
     //perform route lookup based on url and HTTP method
     app.use( app.router );
@@ -74,16 +83,17 @@ app.configure( function() {
 });
 
 //Connect to database
-mongoose.connect( 'mongodb://localhost/library_database' );
+mongoose.connect( config.database_url );
 
-//Initialize UserModel
+// Initialize the models
 UserModel = UserModel.init(mongoose);
+BookModel = BookModel.init(mongoose);
 
 // Routes
 router.registerRoutes(app, mongoose, passport);
 
 //Start server
-var port = 4711;
+var port = config.app_port;
 app.listen( port, function() {
     console.log( 'Express server listening on port %d in %s mode', port, app.settings.env );
 });

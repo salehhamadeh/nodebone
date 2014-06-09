@@ -1,5 +1,5 @@
 function init(mongoose) {
-	var BookModel = require("../models/BookModel").init(mongoose);
+	var BookModel = require("../models/BookModel").getModel();
 
 	function getAllBooks(request, response) {
 		return BookModel.find(function( err, books ) {

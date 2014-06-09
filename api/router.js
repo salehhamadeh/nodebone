@@ -1,9 +1,34 @@
 function registerRoutes(app, mongoose, passport) {
 	var BookController = require("./controllers/BookController").init(mongoose);
+	var UserController = require("./controllers/UserController").init(mongoose);
 
 	app.get( '/api', function( request, response ) {
 	    response.send( 'Library API is running' );
 	});
+
+	//Get a list of all users
+	app.get( '/api/users', function( request, response ) {
+	    return UserController.getAllUsers(request, response);
+	});
+	//Insert a new user
+	app.post( '/api/users', function( request, response ) {
+	    UserController.insertUser(request, response);
+	});
+	//Get a single user by id
+	app.get( '/api/users/:id', function( request, response ) {
+	    return UserController.getUser(request, response);
+	});
+	//Update a user
+	app.put( '/api/users/:id', function( request, response ) {
+	    console.log( 'Updating book ' + request.body.title );
+	    return UserController.updateUser(request, response);
+	});
+	//Delete a user
+	app.delete( '/api/users/:id', function( request, response ) {
+	    console.log( 'Deleting book with id: ' + request.params.id );
+	    return UserController.deleteUser(request, response);
+	});
+
 	//Get a list of all books
 	app.get( '/api/books', ensureAuthenticated, function( request, response ) {
 	    return BookController.getAllBooks(request, response);
@@ -39,7 +64,7 @@ function registerRoutes(app, mongoose, passport) {
 	    }
 	    req.logIn(user, function(err) {
 	      if (err) { return next(err); }
-	      return res.redirect('/success.html');
+	      return res.json(user);
 	    });
 	  })(req, res, next);
 	});

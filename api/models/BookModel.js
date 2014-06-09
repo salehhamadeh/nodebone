@@ -1,3 +1,5 @@
+var model;
+
 function init(mongoose) {
 	//Schemas
 	var Keywords = new mongoose.Schema({
@@ -11,9 +13,14 @@ function init(mongoose) {
 	});
 
 	//Models
-	var BookModel = mongoose.model( 'Book', Book );
+	model = mongoose.model( 'Book', Book );
 
-	return BookModel;
+	return model;
+}
+
+function getModel() {
+	return model;
 }
 
 exports.init = init;
+exports.getModel = getModel;

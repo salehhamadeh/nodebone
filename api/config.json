@@ -1,0 +1,4 @@
+{
+	"app_port": 4722,
+	"database_url": "mongodb://localhost/library_database"
+}
