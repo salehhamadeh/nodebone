@@ -1,17 +1,18 @@
 function init(mongoose) {
 	var BookModel = require("../models/BookModel").getModel();
 
-	function getAllBooks(request, response) {
+	function getAllBooks(request, response, next) {
 		return BookModel.find(function( err, books ) {
 	        if( !err ) {
-	            return response.send( books );
+	            response.send( books );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
 	    });
 	}
 
-	function insertBook(request, response) {
+	function insertBook(request, response, next) {
 		var book = new BookModel({
 	        title: request.body.title,
 	        author: request.body.author,
@@ -20,25 +21,26 @@ function init(mongoose) {
 	    });
 	    book.save( function( err ) {
 	        if( !err ) {
-	            return console.log( 'created' );
+	            response.send( book );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
-	        return response.send( book );
 	    });
 	}
 
-	function getBook(request, response) {
+	function getBook(request, response, next) {
 		return BookModel.findById( request.params.id, function( err, book ) {
 	        if( !err ) {
-	            return response.send( book );
+	            response.send( book );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
 	    });
 	}
 
-	function updateBook(request, response) {
+	function updateBook(request, response, next) {
 		return BookModel.findById( request.params.id, function( err, book ) {
 	        book.title = request.body.title;
 	        book.author = request.body.author;
@@ -47,23 +49,23 @@ function init(mongoose) {
 
 	        return book.save( function( err ) {
 	            if( !err ) {
-	                console.log( 'book updated' );
+	                response.send( book );
 	            } else {
 	                console.log( err );
+	                next(err);
 	            }
-	            return response.send( book );
 	        });
 	    });
 	}
 
-	function deleteBook(request, response) {
+	function deleteBook(request, response, next) {
 		BookModel.findById( request.params.id, function( err, book ) {
 	        return book.remove( function( err ) {
 	            if( !err ) {
-	                console.log( 'Book removed' );
-	                return response.send( '' );
+	                response.send( 'Book removed' );
 	            } else {
 	                console.log( err );
+	                next(err);
 	            }
 	        });
 	    });

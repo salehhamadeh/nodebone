@@ -4,9 +4,10 @@ function init(mongoose) {
 	function getAllUsers(request, response) {
 		return UserModel.find(function( err, users ) {
 	        if( !err ) {
-	            return response.send( users );
+	            response.send( users );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
 	    });
 	}
@@ -20,20 +21,21 @@ function init(mongoose) {
 	    });
 	    user.save( function( err ) {
 	        if( !err ) {
-	            return console.log( 'created' );
+	            response.send( user );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
-	        return response.send( user );
 	    });
 	}
 
 	function getUser(request, response) {
 		return UserModel.findById( request.params.id, function( err, user ) {
 	        if( !err ) {
-	            return response.send( user );
+	            response.send( user );
 	        } else {
-	            return console.log( err );
+	            console.log( err );
+	            next(err);
 	        }
 	    });
 	}
@@ -47,11 +49,11 @@ function init(mongoose) {
 
 	        return user.save( function( err ) {
 	            if( !err ) {
-	                console.log( 'user updated' );
+	                response.send( user );
 	            } else {
 	                console.log( err );
+	                next(err);
 	            }
-	            return response.send( user );
 	        });
 	    });
 	}
@@ -60,10 +62,10 @@ function init(mongoose) {
 		UserModel.findById( request.params.id, function( err, user ) {
 	        return user.remove( function( err ) {
 	            if( !err ) {
-	                console.log( 'User removed' );
-	                return response.send( '' );
+	                response.send( 'User removed' );
 	            } else {
 	                console.log( err );
+	                next(err);
 	            }
 	        });
 	    });
